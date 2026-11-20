@@ -502,6 +502,18 @@ body.hid .layout{filter:blur(18px)}
   </div>
 </div>
 
+<div lang="tr" class="sheet-bg" id="cPrS" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="cPrT">
+    <h2 id="cPrT" style="margin:0">Yazdır / PDF</h2>
+    <p class="help" style="margin:0" id="cPrP">Sayfa hazırlanıyor…</p>
+    <div class="staff" id="cPrPrev" style="max-height:46vh;overflow:auto"></div>
+    <button class="btn primary" id="cPdf" disabled>📄 PDF'i kaydet / gönder</button>
+    <button class="btn" id="cPrNow">🖨 Yazıcıya gönder</button>
+    <p class="help" style="margin:0">Telefonda en kolayı: <b>PDF'i kaydet / gönder</b>'e bas. Açılan menüden Dosyalar'a kaydedebilir, WhatsApp'la gönderebilir ya da <b>Yazdır</b>'ı seçebilirsin.</p>
+    <button class="btn" data-close>Kapat</button>
+  </div>
+</div>
+
 <div id="printSheet" aria-hidden="true"></div>
 
 <div lang="tr" class="sheet-bg" id="lockS" hidden>
@@ -1344,11 +1356,56 @@ $("cMineList").addEventListener("click",function(e){var b=e.target.closest("butt
 $("cMine").onclick=function(){cSave();drawMine();openS("cMineS");};
 $("cNew").onclick=function(){cSave();var P=newPiece();loadPiece(P);};
 
-/* ---------- yazdır ---------- */
-$("cPrint").onclick=function(){cSave();var P=CP,ps=$("printSheet");
- ps.innerHTML=compSVG(P,1000,{head:true,compact:true,perRow:4})+'<div style="height:14px"></div>'+legendSVG(1000)+'<div class="pf">ALTAY Ritim Atölyesi ile yazıldı · yunusaltaydrums.github.io</div>';
- setTimeout(function(){try{window.print();}catch(e){}},60);};
-window.addEventListener("afterprint",function(){var ps=$("printSheet");if(ps)ps.innerHTML="";});
+/* ---------- yazdır / PDF ---------- */
+var pdfFile=null;
+function sheetParts(P){var W=1000,svg=compSVG(P,W,{head:true,compact:true,perRow:4}),H=+svg.match(/height="(\d+(?:\.\d+)?)"/)[1];
+ var rowH=70+4*S+(P.cnt?40:26);return {svg:svg,W:W,H:H,headH:64,rowH:rowH,leg:legendSVG(W)};}
+function svgToCanvas(svg,scale){return new Promise(function(ok,no){var img=new Image();var u=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml;charset=utf-8"}));
+ img.onload=function(){var w=+svg.match(/width="(\d+(?:\.\d+)?)"/)[1],h=+svg.match(/height="(\d+(?:\.\d+)?)"/)[1],cv=document.createElement("canvas");cv.width=Math.round(w*scale);cv.height=Math.round(h*scale);
+  var g=cv.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,cv.width,cv.height);g.drawImage(img,0,0,cv.width,cv.height);URL.revokeObjectURL(u);ok(cv);};
+ img.onerror=function(e){URL.revokeObjectURL(u);no(e);};img.src=u;});}
+function footSVG(W){return '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="30" viewBox="0 0 '+W+' 30"><rect width="'+W+'" height="30" fill="#fff"/><text x="'+(W/2)+'" y="20" font-size="12" text-anchor="middle" fill="#78716c" font-family="Arial,sans-serif">ALTAY Ritim Atölyesi ile yazıldı · yunusaltaydrums.github.io</text></svg>';}
+function b64bytes(d){var bin=atob(d.split(",")[1]),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;}
+function buildPDF(pages){/* pages: [{jpg:Uint8Array,w,h}] → A4 PDF */
+ var enc=function(t){var u=new Uint8Array(t.length);for(var i=0;i<t.length;i++)u[i]=t.charCodeAt(i)&255;return u;};
+ var parts=[],off=[],len=0,push=function(x){var u=typeof x==="string"?enc(x):x;parts.push(u);len+=u.length;};
+ var n=pages.length,kids=[];for(var i=0;i<n;i++)kids.push((3+i*3)+" 0 R");
+ push("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+ off[1]=len;push("1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n");
+ off[2]=len;push("2 0 obj<</Type/Pages/Count "+n+"/Kids["+kids.join(" ")+"]>>endobj\n");
+ pages.forEach(function(p,i){var po=3+i*3,co=po+1,io=po+2,PW=595.28,PH=841.89,m=28,sc=Math.min((PW-2*m)/p.w,(PH-2*m)/p.h),dw=p.w*sc,dh=p.h*sc,x=(PW-dw)/2,y=PH-m-dh;
+  off[po]=len;push(po+" 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 595.28 841.89]/Resources<</XObject<</Im"+i+" "+io+" 0 R>>>>/Contents "+co+" 0 R>>endobj\n");
+  var cs="q "+dw.toFixed(2)+" 0 0 "+dh.toFixed(2)+" "+x.toFixed(2)+" "+y.toFixed(2)+" cm /Im"+i+" Do Q";
+  off[co]=len;push(co+" 0 obj<</Length "+cs.length+">>stream\n"+cs+"\nendstream endobj\n");
+  off[io]=len;push(io+" 0 obj<</Type/XObject/Subtype/Image/Width "+p.pw+"/Height "+p.ph+"/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length "+p.jpg.length+">>stream\n");push(p.jpg);push("\nendstream endobj\n");});
+ var tot=3+n*3,x=len,xr="xref\n0 "+tot+"\n0000000000 65535 f \n";for(var k=1;k<tot;k++)xr+=("0000000000"+off[k]).slice(-10)+" 00000 n \n";
+ push(xr+"trailer<</Size "+tot+"/Root 1 0 R>>\nstartxref\n"+x+"\n%%EOF");
+ var out=new Uint8Array(len),o=0;parts.forEach(function(u){out.set(u,o);o+=u.length;});return out;}
+function makePDF(P){var sp=sheetParts(P),sc=2;
+ return Promise.all([svgToCanvas(sp.svg,sc),svgToCanvas(sp.leg,sc),svgToCanvas(footSVG(sp.W),sc)]).then(function(cv){
+  var main=cv[0],leg=cv[1],ft=cv[2],W=main.width,pageH=Math.round(W*1.4142),rh=sp.rowH*sc,hh=sp.headH*sc,tailH=leg.height+ft.height+20*sc;
+  var nRows=Math.round((main.height-4*sc-hh)/rh),pages=[],r=0;
+  var fitAll=main.height+tailH<=pageH*1.3;
+  while(r<nRows||!pages.length){var top=r===0?0:hh+r*rh,avail=(fitAll?Infinity:pageH)-(r===0?hh:0),take=fitAll?nRows-r:Math.max(1,Math.floor((avail-(r+Math.floor(avail/rh)>=nRows?tailH:0))/rh));
+   if(r+take>nRows)take=nRows-r;var bot=(r+take>=nRows)?main.height:hh+(r+take)*rh,last=r+take>=nRows,h=bot-top+(last?tailH:0);
+   var c=document.createElement("canvas");c.width=W;c.height=h;var g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,W,h);g.drawImage(main,0,top,W,bot-top,0,0,W,bot-top);
+   if(last){g.drawImage(leg,0,bot-top+12*sc);g.drawImage(ft,0,bot-top+12*sc+leg.height+8*sc);}
+   pages.push({c:c});r+=take;if(take<=0)break;}
+  var first=pages[0].c.toDataURL("image/png");
+  var pp=pages.map(function(p){var mh=Math.max(p.c.height,1);return {jpg:b64bytes(p.c.toDataURL("image/jpeg",0.9)),w:p.c.width,h:Math.max(mh,Math.round(p.c.width*(fitAll?0:0)))||mh,pw:p.c.width,ph:p.c.height};});
+  return {bytes:buildPDF(pp),preview:first,n:pages.length};});}
+function fileName(){return ((CP.title||"nota").replace(/[\\/:*?"<>|]+/g,"").trim()||"nota")+".pdf";}
+$("cPrint").onclick=function(){cSave();pdfFile=null;$("cPdf").disabled=true;$("cPrP").textContent="Sayfa hazırlanıyor…";$("cPrPrev").innerHTML="";
+ $("printSheet").innerHTML=compSVG(CP,1000,{head:true,compact:true,perRow:4})+'<div style="height:14px"></div>'+legendSVG(1000)+'<div class="pf">ALTAY Ritim Atölyesi ile yazıldı · yunusaltaydrums.github.io</div>';
+ openS("cPrS");
+ makePDF(CP).then(function(r){try{pdfFile=new File([r.bytes],fileName(),{type:"application/pdf"});}catch(e){pdfFile=new Blob([r.bytes],{type:"application/pdf"});pdfFile.name=fileName();}
+  $("cPrPrev").innerHTML='<img src="'+r.preview+'" alt="Sayfa önizlemesi" style="width:100%;display:block">';$("cPrP").textContent="Hazır: "+r.n+" sayfa A4.";$("cPdf").disabled=false;})
+ .catch(function(){$("cPrP").textContent="PDF hazırlanamadı. Yazıcıya gönder düğmesini dene.";});};
+$("cPdf").onclick=function(){if(!pdfFile)return;var f=pdfFile;
+ try{if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:CP.title||"Nota"}).catch(function(e){if(e&&e.name!=="AbortError")dl(f);});return;}}catch(e){}
+ dl(f);};
+function dl(f){var u=URL.createObjectURL(f),a=document.createElement("a");a.href=u;a.download=f.name||fileName();document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},60000);}
+$("cPrNow").onclick=function(){try{window.print();}catch(e){}};
 
 /* ---------- çalma ---------- */
 var cT=0,cOrd=[],cPos=0,cStep=0,cTimer=null,cLastEl=[];
@@ -1393,7 +1450,7 @@ function openComp(){stop();if(typeof stageOn!=="undefined"&&stageOn)closeStage()
  cDrawTools();$("cLegend").innerHTML=legendSVG(760);
  $("cSym").innerHTML=[["&gt;","Aksan: güçlü vuruş"],["^","Sert aksan (marcato)"],["( )","Ghost: çok hafif vuruş"],["fl","Flam: önünde tek süs notası"],["dr","Drag: önünde iki süs notası"],["z","Roll: sapta z, sürekli tıngırtı"],["o","Açık hi-hat: notanın üstünde küçük daire"],["𝄆 𝄇","Tekrar: iki işaret arası tekrar çalınır, ×3 gibi sayı kaç kez olduğunu söyler"],["%","Önceki ölçünün aynısını çal"],["R L","Sağ el, sol el"],["mf","Nüans: pp çok hafif … ff çok güçlü"]].map(function(x){return '<span>'+x[0]+'</span><div>'+x[1]+'</div>';}).join("");
  cRender();window.scrollTo({top:0});}
-function hideComp(){cStop();var v=$("compView");if(v)v.hidden=true;store("ra_view","");}
+function hideComp(){cStop();var ps=$("printSheet");if(ps)ps.innerHTML="";var v=$("compView");if(v)v.hidden=true;store("ra_view","");}
 var _drawLib=drawLib;
 drawLib=function(){_drawLib();var el=$("libList");if(!el)return;var d=document.createElement("div");
  d.innerHTML='<div class="lser">Kendi notanı yaz</div><button class="cpromo" id="openComp" type="button"><span class="cp-t"><span class="cp-ic">✎</span><span><b>Nota Yazıcı</b><small>Kendi ritmini, kendi parçanın notasını yaz. Crash, ride, hi-hat, trampet, tomlar, kick… Aksan, ghost, flam, es, tekrar işaretleri. Yazdıkça notaya döker, çalar, yazdırırsın.</small></span></span><span class="cp-staff">'+promoSVG()+'</span><span class="cp-go">Yazmaya başla ›</span></button>';
