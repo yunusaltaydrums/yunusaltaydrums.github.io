@@ -120,6 +120,15 @@ nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-8
 .gate{overflow:auto}
 .gate .lic{font-size:13px;color:#a8a29e}
 .gate .btn.primary{background:#fb923c;border-color:#fb923c;color:#1c1917;min-width:200px;font-size:17px;min-height:52px}
+.inst-hb{color:var(--accent)}
+.gate .gate-inst{margin-top:10px;min-width:200px;min-height:48px;background:transparent;color:#fafaf9;border:1px solid #57534e}
+.ibox{background:var(--accent-soft);border-radius:12px;padding:12px;font-size:14px}
+.isteps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.isteps li{display:flex;gap:12px;align-items:center;font-size:15px}
+.isteps .ico{flex:none;width:36px;height:36px;border-radius:10px;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;font-size:18px;color:var(--accent)}
+.arrow{text-align:center;font-size:28px;color:var(--accent);animation:bob 1.2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){.arrow{animation:none}}
 .licbox{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px}
 .licbox b{display:block;font:700 18px var(--f-display);letter-spacing:.04em}
 .steps{margin:0;padding-left:20px}
@@ -172,6 +181,7 @@ body.hid .layout{filter:blur(18px)}
     <div class="brand">
       <div class="logo" role="img" aria-label="ALTAY"></div>
       <h1>Ritim Atölyesi</h1>
+      <button class="hb js-install inst-hb" aria-label="Ana ekrana ekle" title="Ana ekrana ekle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 8v7M8.5 11.5L12 15l3.5-3.5"/></svg></button>
       <button class="hb" id="setBtn" aria-label="Hesabım ve lisans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button>
     </div>
     <nav class="chips" id="chips" role="tablist" aria-label="Bölümler"></nav>
@@ -258,6 +268,7 @@ body.hid .layout{filter:blur(18px)}
   <div id="gWelcome" hidden>
     <p id="gHello">Hoş geldin.</p>
     <button class="btn primary" id="gateGo" style="margin-top:18px">Başla</button>
+    <button class="btn gate-inst js-install">📱 Ana ekrana ekle</button>
   </div>
   <form id="gForm" class="gform" hidden autocomplete="off">
     <p>Uygulamayı açmak için adını ve sana e-postayla gelen açılış kodunu yaz.</p>
@@ -274,7 +285,7 @@ body.hid .layout{filter:blur(18px)}
     <h2 id="setT">Hesabım</h2>
     <div class="licbox" id="licBox"></div>
     <p class="help" style="margin:0">Bu uygulama kişiye özeldir. Notaların üstünde lisans sahibinin adı yazar; başkasıyla paylaşılamaz.</p>
-    <button class="btn" id="openInst">📱 Telefona uygulama gibi ekle</button>
+    <button class="btn js-install">📱 Ana ekrana ekle</button>
     <button class="btn" id="openBuy">Satın alma nasıl olur?</button>
     <button class="btn" id="logout">Bu cihazda kodu sıfırla</button>
     <button class="btn primary" data-close>Kapat</button>
@@ -298,14 +309,26 @@ body.hid .layout{filter:blur(18px)}
 </div>
 
 <div lang="tr" class="sheet-bg" id="inst" hidden>
-
   <div class="sheet" role="dialog" aria-labelledby="instT">
-    <h2 id="instT">Telefona uygulama gibi ekle</h2>
-    <p style="margin:0"><b>iPhone / iPad (Safari):</b></p>
-    <ol><li>Bu sayfayı Safari'de aç.</li><li>Alttaki Paylaş düğmesine (kare ve yukarı ok) dokun.</li><li>“Ana Ekrana Ekle”yi seç, adını ALTAY yap.</li></ol>
-    <p style="margin:0"><b>Android (Chrome):</b></p>
-    <ol><li>Sayfayı Chrome'da aç.</li><li>Sağ üstteki üç noktaya dokun.</li><li>“Ana ekrana ekle”yi seç.</li></ol>
-    <p class="help" style="margin:0">Simgeye dokununca uygulama gibi açılır. Sesler ilk çalışta yüklenir, internet bağlantısı gerekir.</p>
+    <h2 id="instT">Ana ekrana ekle</h2>
+    <div id="iInapp" class="ibox" hidden><b>Önce tarayıcıda aç.</b> Bu sayfa bir uygulamanın içinde açılmış (WhatsApp, Instagram gibi). Sağ üstteki menüden <b>“Safari'de aç”</b> ya da <b>“Tarayıcıda aç”</b>ı seç, sonra bu düğmeye yeniden bas.</div>
+    <div id="iIOS" hidden>
+      <ol class="isteps">
+        <li><span class="ico">⬆︎</span><span>Ekranın altındaki <b>Paylaş</b> simgesine dokun (yukarı ok çıkan kare).</span></li>
+        <li><span class="ico">＋</span><span>Listeyi kaydır, <b>Ana Ekrana Ekle</b>'yi seç.</span></li>
+        <li><span class="ico">✓</span><span>Sağ üstte <b>Ekle</b>'ye bas. ALTAY simgesi ana ekrana gelir.</span></li>
+      </ol>
+      <div class="arrow" aria-hidden="true">⬇︎</div>
+    </div>
+    <div id="iAnd" hidden>
+      <ol class="isteps">
+        <li><span class="ico">⋮</span><span>Sağ üstteki <b>üç nokta</b> menüsüne dokun.</span></li>
+        <li><span class="ico">＋</span><span><b>Ana ekrana ekle</b> ya da <b>Uygulamayı yükle</b>'yi seç.</span></li>
+        <li><span class="ico">✓</span><span><b>Ekle</b>'ye bas.</span></li>
+      </ol>
+    </div>
+    <div id="iDone" class="ibox" hidden>Uygulama zaten ana ekranında kurulu ve oradan açılmış. 👍</div>
+    <p class="help" style="margin:0">Kurduktan sonra ALTAY simgesine dokun: adres çubuğu olmadan tam ekran açılır, internet yokken de çalışır.</p>
     <button class="btn primary" data-close>Tamam</button>
   </div>
 </div>
@@ -636,7 +659,7 @@ $("gForm").addEventListener("submit",function(e){e.preventDefault();var n=$("gNa
  try{unlockIOS();}catch(x){}$("gate").hidden=true;try{sessionStorage.setItem("ra_in","1");}catch(x){}if(LAND.matches)openStage(false);});
 function openS(id){Array.prototype.forEach.call(document.querySelectorAll(".sheet-bg"),function(x){x.hidden=x.id!==id;});}
 $("setBtn").onclick=function(){openS("setS");};
-$("openInst").onclick=function(){openS("inst");};
+
 $("openBuy").onclick=function(){openS("buyS");};
 $("logout").onclick=function(){try{localStorage.removeItem("ra_act");sessionStorage.removeItem("ra_in");}catch(e){}memAct=null;stop();openS("");showGate();};
 Array.prototype.forEach.call(document.querySelectorAll(".sheet-bg"),function(bg){bg.addEventListener("click",function(e){if(e.target===bg||e.target.closest("[data-close]"))bg.hidden=true;});});
@@ -681,6 +704,22 @@ $("sHoca").onclick=function(){var on=$("sAns").hidden;$("sAns").hidden=!on;this.
 function onOrient(){if(LAND.matches&&!stageOn)openStage(false);else if(!LAND.matches&&stageOn&&!document.fullscreenElement)closeStage();}
 if(LAND.addEventListener)LAND.addEventListener("change",onOrient);else if(LAND.addListener)LAND.addListener(onOrient);
 document.addEventListener("keydown",function(e){if(!stageOn)return;if(e.key===" "){e.preventDefault();$("sPlay").onclick();}else if(e.key==="ArrowRight")step2(1);else if(e.key==="ArrowLeft")step2(-1);else if(e.key==="Escape")closeStage();});
+
+/* ana ekrana ekle */
+var deferredInstall=null,UA=navigator.userAgent||"";
+var isIOS=/iPhone|iPad|iPod/.test(UA)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+var isInApp=/FBAN|FBAV|Instagram|WhatsApp|Line\/|GSA\/|Snapchat|TikTok|Twitter|LinkedInApp/i.test(UA);
+function isStandalone(){try{return window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;}catch(e){return false;}}
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferredInstall=e;updInstall();});
+window.addEventListener("appinstalled",function(){deferredInstall=null;updInstall();});
+function updInstall(){var hide=isStandalone();Array.prototype.forEach.call(document.querySelectorAll(".js-install"),function(b){b.hidden=hide;});}
+function doInstall(){
+ if(isStandalone()){showInst("done");return;}
+ if(deferredInstall){var p=deferredInstall;deferredInstall=null;p.prompt();(p.userChoice||Promise.resolve()).then(function(){updInstall();});return;}
+ showInst(isInApp?"inapp":isIOS?"ios":"and");}
+function showInst(k){$("iInapp").hidden=k!=="inapp";$("iIOS").hidden=k!=="ios";$("iAnd").hidden=k!=="and";$("iDone").hidden=k!=="done";openS("inst");}
+Array.prototype.forEach.call(document.querySelectorAll(".js-install"),function(b){b.addEventListener("click",doInstall);});
+updInstall();
 
 /* boot */
 drawChips();
