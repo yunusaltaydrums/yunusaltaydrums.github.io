@@ -594,6 +594,17 @@ body.hid .layout{filter:blur(18px)}
   <div class="sheet" role="dialog" aria-labelledby="xMicST">
     <h2 id="xMicST" style="margin:0">Puanın</h2>
     <div id="xMicR"></div>
+    <details class="c-more" style="border-top:1px solid var(--line);padding-top:6px">
+      <summary>Puan neye göre?</summary>
+      <ul style="margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px">
+        <li><b>Zamanlamaya bakar.</b> Ekrandaki ritmin hangi sayıda vurulması gerektiğini bilir, mikrofonla senin vuruşlarını yakalar ve ikisini karşılaştırır.</li>
+        <li><b>Tam yerinde</b>: beklenen ana çok yakın vuruş, tam puan. Biraz kayan vuruş yarım puan alır.</li>
+        <li><b>Kaçan</b>: vurman gereken ama vurmadığın yer. <b>Fazladan</b>: ritimde olmayan vuruş.</li>
+        <li>Telefonun mikrofon gecikmesini kendisi ölçüp düşer, telefondan kaynaklanan gecikme puanını düşürmez.</li>
+        <li><b>Hangi davula vurduğunu ayırt etmez.</b> Aynı anda çalınan vuruşları (ör. kick + hi-hat) tek vuruş sayar. Yani "doğru anda vurdun mu" koçudur.</li>
+        <li>Sessiz bir odada en doğru sonucu verir.</li>
+      </ul>
+    </details>
     <button class="btn primary" id="xMicAgain">↻ Yeniden dene</button>
     <button class="btn" data-close>Kapat</button>
   </div>
