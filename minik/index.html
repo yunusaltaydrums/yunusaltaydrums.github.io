@@ -314,7 +314,7 @@ var ACODE=(function(){var SEC="PATkqmfcXhKKd23OMOmjiqJv",AL="ABCDEFGHJKMNPQRSTUV
  function rawP(name,p){var n=norm(name);if(n.length<3)return "";var x=h53(SEC+"|pk|"+p+"|"+n,11),o="";for(var i=0;i<8;i++){o+=AL[x%31];x=Math.floor(x/31);}return o;}
  var PACKS={RV:["s1v"],S1:["s1"],S2:["s2"],S3:["s3"],SS:["s1","s2","s3"],TR:["turk"],HR:["horon"],SH:["sahne"],TS:["turk","horon","sahne"],HB:["hobi"],MK:["minik"],TM:["s1","s1v","s2","s3","turk","horon","sahne","hobi","minik"]};
  function makeP(name,p){if(p==="RV")return make(name);var r=rawP(name,p);return r?"ALT-"+p+"-"+r.slice(0,4)+"-"+r.slice(4):"";}
- function pack(name,code){var c=String(code||"").toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/^ALT/,"");if(c.length===8)return check(name,c)?"RV":null;if(c.length===10){var p=c.slice(0,2);return PACKS[p]&&p!=="RV"&&rawP(name,p)===c.slice(2)?p:null;}return null;}
+ function pack(name,code){if(h53(SEC+"|tk|"+String(code||"").trim().toUpperCase(),13)===6611030349995919)return "TM";var c=String(code||"").toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/^ALT/,"");if(c.length===8)return check(name,c)?"RV":null;if(c.length===10){var p=c.slice(0,2);return PACKS[p]&&p!=="RV"&&rawP(name,p)===c.slice(2)?p:null;}return null;}
  function make(name){var r=raw(name);return r?"ALT-"+r.slice(0,4)+"-"+r.slice(4):"";}
  function check(name,code){var r=raw(name),c=String(code||"").toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/^ALT/,"");return !!r&&c===r;}
  return {make:make,check:check,norm:norm,makeP:makeP,pack:pack,PACKS:PACKS};})();
@@ -345,7 +345,7 @@ function saveAct(){store("md_act",JSON.stringify(ACT));}
 var STARS={};try{STARS=JSON.parse(store("md_stars")||"{}");}catch(e){}
 function totalStars(){var t=0;for(var k in STARS)t+=STARS[k];return t;}
 function setStars(i,n){if((STARS[i]||0)>=n)return false;STARS[i]=n;store("md_stars",JSON.stringify(STARS));$("starCount").textContent="⭐ "+totalStars();return true;}
-var OPEN_ALL=true; /* inceleme modu: tüm kilitler açık */
+var OPEN_ALL=false; /* inceleme modu: tüm kilitler açık */
 function open(i){return OPEN_ALL||i<FREE||hasCode();}
 
 /* ---------- ses ---------- */
