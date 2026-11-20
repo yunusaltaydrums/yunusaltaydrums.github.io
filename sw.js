@@ -1,4 +1,4 @@
-const V='altay-atolye-v4';
+const V='altay-atolye-v5';
 const CORE=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE.map(x=>new Request(x,{cache:'reload'})))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('altay-atolye-')&&k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
