@@ -277,7 +277,8 @@ function drawMeasure(m,meter,x0,x1,y0,idx){
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 var AC=null,noiseBuf=null;
 var unlockEl=null;
-function unlockIOS(){try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){}
+var REC=false;
+function unlockIOS(){try{if(navigator.audioSession&&!REC)navigator.audioSession.type="playback";}catch(e){}
  try{if(!unlockEl){unlockEl=document.createElement("audio");unlockEl.setAttribute("playsinline","");unlockEl.loop=true;unlockEl.src=SILENT;}var p=unlockEl.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
 function ctx(){if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C();
  loadSamples();noiseBuf=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);var d=noiseBuf.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1;}return AC;}

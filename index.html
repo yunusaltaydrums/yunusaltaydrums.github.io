@@ -327,6 +327,13 @@ body.hid .layout{filter:blur(18px)}
 .xgrid span{font-size:12.5px;color:var(--muted)}
 #xMicR{display:flex;flex-direction:column;gap:10px}
 #xMicR p{margin:0}
+.xinfo{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.xchip{border:1px solid var(--line);background:var(--accent-soft);color:var(--fg);border-radius:999px;padding:6px 12px;font:600 13px var(--f-body);cursor:pointer;font-variant-numeric:tabular-nums}
+.xlads{font-size:13px;font-weight:600;color:var(--accent)}
+.xstreak{cursor:pointer}
+.xall{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.xall span{border-radius:999px;padding:5px 10px;font-size:13px;font-weight:600;background:var(--chip);color:var(--muted)}
+.xall span.ok{background:var(--accent-soft);color:var(--fg)}
 </style>
 
 <div lang="tr" class="wrap">
@@ -592,6 +599,13 @@ body.hid .layout{filter:blur(18px)}
   </div>
 </div>
 
+<div lang="tr" class="sheet-bg" id="xDayS" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="xDayT">
+    <h2 id="xDayT" style="margin:0">🔥 Günlük seri ve rozetler</h2>
+    <div id="xDayBox"></div>
+    <button class="btn primary" data-close>Tamam</button>
+  </div>
+</div>
 <div lang="tr" class="sheet-bg" id="lockS" hidden>
   <div class="sheet" role="dialog" aria-labelledby="lockT">
     <h2 id="lockT">Kod gir</h2>
@@ -736,7 +750,8 @@ function drawMeasure(m,meter,x0,x1,y0,idx){
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 var AC=null,noiseBuf=null;
 var unlockEl=null;
-function unlockIOS(){try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){}
+var REC=false;
+function unlockIOS(){try{if(navigator.audioSession&&!REC)navigator.audioSession.type="playback";}catch(e){}
  try{if(!unlockEl){unlockEl=document.createElement("audio");unlockEl.setAttribute("playsinline","");unlockEl.loop=true;unlockEl.src=SILENT;}var p=unlockEl.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
 function ctx(){if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C();
  loadSamples();noiseBuf=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);var d=noiseBuf.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1;}return AC;}
@@ -1640,22 +1655,31 @@ function totalMin(){var t=0;for(var k in DAYS)t+=DAYS[k];return Math.floor(t/60)
 var BADGES=[["🔥","İlk gün",function(s,m,b){return b>=1;}],["🥉","3 gün seri",function(s){return s>=3;}],["🥈","7 gün seri",function(s){return s>=7;}],["🥇","30 gün seri",function(s){return s>=30;}],
  ["⏱","1 saat çalıştın",function(s,m){return m>=60;}],["💪","5 saat çalıştın",function(s,m){return m>=300;}],["🏆","20 saat çalıştın",function(s,m){return m>=1200;}]];
 var bestStreak=+(store("ra_best")||0);
-function drawStreak(){var el=$("xStreak");if(!el)return;var s=streak(),today=Math.floor((DAYS[dkey()]||0)/60),m=totalMin(),days=0;for(var k in DAYS)if(DAYS[k]>=GOAL)days++;
+function drawStreak(target){var el=target||$("xStreak");if(!el)return;var s=streak(),today=Math.floor((DAYS[dkey()]||0)/60),m=totalMin(),days=0;for(var k in DAYS)if(DAYS[k]>=GOAL)days++;
  if(s>bestStreak){bestStreak=s;store("ra_best",String(s));}
  var dn=["Pz","Pt","Sa","Ça","Pe","Cu","Ct"],dots="";for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var v=DAYS[dkey(d)]||0;dots+='<span class="xd'+(v>=GOAL?' ok':v>0?' half':'')+(i===0?' td':'')+'"><i></i>'+dn[d.getDay()]+'</span>';}
  var got=BADGES.filter(function(b){return b[2](Math.max(s,bestStreak),m,days);});
  el.innerHTML='<div class="xs-top"><b>🔥 '+s+' gün seri</b><span>Bugün '+Math.min(today,10)+' / 10 dk</span></div><div class="xbar"><i style="width:'+Math.min(100,today*10)+'%"></i></div><div class="xdots">'+dots+'</div>'+
   '<div class="xbadges">'+(got.length?got.map(function(b){return '<span title="'+b[1]+'">'+b[0]+' '+b[1]+'</span>';}).join(""):'<span class="help">Her gün 10 dakika çal, seri başlasın. İlk rozetin bugün!</span>')+'</div>';}
-setInterval(function(){if(!(playing||cPlaying)||document.hidden)return;var k=dkey(),before=DAYS[k]||0;DAYS[k]=before+1;
+function dayChip(){var m=Math.floor((DAYS[dkey()]||0)/60),s=(DAYS[dkey()]||0)%60,t="🔥 "+streak()+" gün seri · bugün "+m+":"+("0"+s).slice(-2)+" / 10:00";["xDay","cDay"].forEach(function(id){var el=$(id);if(el)el.textContent=t;});}
+setInterval(function(){dayChip();if(!(playing||cPlaying)||document.hidden)return;var k=dkey(),before=DAYS[k]||0;DAYS[k]=before+1;
  if(DAYS[k]%10===0)store("ra_days",JSON.stringify(DAYS));
  if(before<GOAL&&DAYS[k]>=GOAL){store("ra_days",JSON.stringify(DAYS));xToast("🎉 Bugünkü 10 dakikanı tamamladın! Seri: "+streak()+" gün");}},1000);
 window.addEventListener("pagehide",function(){store("ra_days",JSON.stringify(DAYS));});
 
+(function(){var tr=$("xMic").parentNode,w=document.createElement("div");w.className="xinfo";w.innerHTML='<button class="xchip" id="xDay" type="button"></button><span class="xlads" id="xLadS"></span>';tr.parentNode.insertBefore(w,tr.nextSibling);
+ var ct=$("cMus").parentNode,w2=document.createElement("div");w2.className="xinfo";w2.innerHTML='<button class="xchip" id="cDay" type="button"></button>';ct.parentNode.insertBefore(w2,ct.nextSibling);
+ function openDay(){var el=$("xDayBox");el.innerHTML="";var box=document.createElement("div");box.className="xstreak";el.appendChild(box);drawStreak(box);
+  var s=streak(),m=totalMin(),days=0;for(var k in DAYS)if(DAYS[k]>=GOAL)days++;
+  el.insertAdjacentHTML("beforeend",'<p class="help" style="margin:8px 0 0">Çaldığın her saniye kendiliğinden sayılır (▶ Çal açıkken). Günde 10 dakikayı doldurunca o gün seriye eklenir. Toplam: <b>'+m+' dk</b>, 10 dakikayı doldurduğun gün: <b>'+days+'</b>.</p><div class="xall">'+BADGES.map(function(b){var ok=b[2](Math.max(s,bestStreak),m,days);return '<span class="'+(ok?'ok':'')+'">'+(ok?b[0]:'🔒')+' '+b[1]+'</span>';}).join("")+'</div>');
+  openS("xDayS");}
+ $("xDay").onclick=openDay;$("cDay").onclick=openDay;dayChip();
+ document.addEventListener("click",function(e){if(e.target.closest("#xStreak"))openDay();});})();
 /* ---------- hız merdiveni ---------- */
 var ladOn=store("ra_lad")==="1",ladLoops=0;
 function ladUI(){$("xLad").setAttribute("aria-pressed",String(ladOn));}
-$("xLad").onclick=function(){ladOn=!ladOn;store("ra_lad",ladOn?"1":"0");ladLoops=0;ladUI();
- xToast(ladOn?"📈 Hız merdiveni açık: her 4 turda tempo +4 artar, hedefte durur. Zorlanırsan −5'e bas.":"Hız merdiveni kapalı");};
+$("xLad").onclick=function(){ladOn=!ladOn;store("ra_lad",ladOn?"1":"0");ladLoops=0;ladUI();ladShow();
+ xToast(ladOn?"📈 Hız merdiveni açık: ▶ Çal'a bas; her 2 turda tempo +4 artar, hedefte durur. Zorlanırsan −5'e bas.":"Hız merdiveni kapalı");};
 ladUI();
 
 /* ---------- müzikle çal ---------- */
@@ -1678,20 +1702,22 @@ function musStep(t,meter,step,ins,dt,src){var sty=styleOf(meter),ch=STY[sty][mMc
 
 /* ---------- mikrofon ---------- */
 var mic={on:false,phones:false,stream:null,src:null,proc:null,exp:[],ons:[],avg:0,last:0,t0:0,endAt:0,src2:"main"};
-function micStop(show){if(!mic.on)return;mic.on=false;XH.mute=false;try{mic.proc.disconnect();mic.src.disconnect();}catch(e){}try{mic.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
+function micStop(show){if(!mic.on)return;mic.on=false;XH.mute=false;REC=false;try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){}try{mic.proc.disconnect();mic.src.disconnect();}catch(e){}try{mic.stream.getTracks().forEach(function(t){t.stop();});}catch(e){}
  $("xMic").textContent="🎤 Dinle ve puanla";$("xMic").classList.remove("primary");if(show)micResult();}
 function micStart(){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){xToast("Bu tarayıcı mikrofona izin vermiyor.");return;}
- unlockIOS();var a=ctx();if(!a)return;if(a.state==="suspended")a.resume();
+ REC=true;try{if(navigator.audioSession)navigator.audioSession.type="play-and-record";}catch(e){}
+ var a=ctx();if(!a){REC=false;return;}if(a.state==="suspended")a.resume();
  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}).then(function(st){
-  mic.stream=st;mic.src=a.createMediaStreamSource(st);mic.proc=a.createScriptProcessor(1024,1,1);mic.exp=[];mic.ons=[];mic.avg=0.0004;mic.last=0;mic.t0=0;mic.on=true;
+  mic.stream=st;mic.src=a.createMediaStreamSource(st);mic.proc=a.createScriptProcessor(1024,1,1);mic.exp=[];mic.ons=[];mic.heard=0;mic.shown=-1;mic.avg=0.00005;mic.last=0;mic.t0=0;mic.on=true;
   mic.proc.onaudioprocess=function(e){var b=e.inputBuffer.getChannelData(0),sr=a.sampleRate,end=a.currentTime,H=128;
    for(var h=0;h+H<=b.length;h+=H){var en=0;for(var j=h;j<h+H;j++)en+=b[j]*b[j];en/=H;var tt=end-(b.length-h)/sr;
-    if(en>mic.avg*5&&en>0.0008&&tt-mic.last>0.08){mic.ons.push(tt);mic.last=tt;}mic.avg=mic.avg*0.97+en*0.03;}};
+    if(en>mic.avg*4&&en>0.00002&&tt-mic.last>0.07){mic.ons.push(tt);mic.last=tt;mic.heard++;}mic.avg=mic.avg*0.97+en*0.03;}
+   if(mic.heard!==mic.shown){mic.shown=mic.heard;$("xMic").textContent="■ Bitir · "+mic.heard+" vuruş duydum";}};
   mic.src.connect(mic.proc);mic.proc.connect(a.destination);
-  XH.mute=!mic.phones;$("xMic").textContent="■ Bitir ve puanla";$("xMic").classList.add("primary");
-  if(!playing)start();mic.endAt=0;
-  xToast(mic.phones?"🎧 Dinliyorum. Ritmi çal; 30 saniye sonra puan gelir.":"🎤 Dinliyorum. Sesler kapalı, ışığa bakarak çal; 30 saniye sonra puan gelir.");
- }).catch(function(){xToast("Mikrofon izni verilmedi. Telefon ayarlarından tarayıcıya mikrofon izni ver.");});}
+  XH.mute=true;$("xMic").textContent="■ Bitir · 0 vuruş duydum";$("xMic").classList.add("primary");
+  if(a.state==="suspended")a.resume();if(playing)stop();start();mic.endAt=0;
+  xToast("🎤 Dinliyorum. 4 sayımdan sonra notadaki ışığa bakarak çal: masaya, pad'e ya da davula. 30 saniye sonra puan gelir.");
+ }).catch(function(){REC=false;xToast("Mikrofona izin verilmedi. Telefon ayarlarından bu uygulamaya (tarayıcıya) mikrofon izni ver.");});}
 function micResult(){var ex=mic.exp,ons=mic.ons.filter(function(t){return t>=(mic.t0-0.15);});stop();
  var box=$("xMicR");if(ex.length<6){box.innerHTML='<p>Yeterli vuruş duyamadım. Biraz daha uzun çal ya da telefonu davula yaklaştır.</p>';openS("xMicS");return;}
  var off=0,bc=-1;for(var o2=-0.1;o2<=0.45;o2+=0.005){var cn=0;for(var q=0;q<ex.length;q++){for(var r=0;r<ons.length;r++)if(Math.abs(ons[r]-(ex[q].t+o2))<0.04){cn++;break;}}if(cn>bc){bc=cn;off=o2;}}
@@ -1707,9 +1733,7 @@ function micResult(){var ex=mic.exp,ons=mic.ons.filter(function(t){return t>=(mi
  box.innerHTML='<div class="xscore">'+face+' '+score+'<small>/100</small></div><div class="xgrid"><div><b>'+good+'</b><span>tam yerinde</span></div><div><b>'+miss+'</b><span>kaçan vuruş</span></div><div><b>'+extra+'</b><span>fazladan</span></div></div><p>'+tip+'</p>'+
   (score<70?'<p class="help">İpucu: tempoyu 5-10 düşür, puan 85\'i geçince yeniden artır.</p>':'<p class="help">Tempoyu biraz artırıp yeniden dene!</p>');
  openS("xMicS");}
-$("xMic").onclick=function(){if(mic.on){micStop(true);return;}openS("xMicIn");};
-$("xMicGo").onclick=function(){mic.phones=$("xPh").checked;store("ra_ph",mic.phones?"1":"0");openS("");micStart();};
-$("xPh").checked=store("ra_ph")==="1";
+$("xMic").onclick=function(){if(mic.on){micStop(true);return;}micStart();};
 $("xMicAgain").onclick=function(){openS("");micStart();};
 
 /* ---------- motor bağlantıları ---------- */
@@ -1719,9 +1743,12 @@ XH.step=function(t,meter,step,ins,dt,src,mi0){
   if(ins&&ins.length&&t<mic.endAt)mic.exp.push({t:t,meter:meter,step:step});
   if(t>=mic.endAt&&!mic.done){mic.done=true;setTimeout(function(){mic.done=false;micStop(true);},Math.max(0,(t-AC.currentTime)*1000)+300);}}};
 XH.wrap=function(mi1,src){mMc[src]++;
- if(src==="main"&&mi1===0&&ladOn&&item){ladLoops++;if(ladLoops%4===0&&bpm<item.tempo[1]){bpm=Math.min(item.tempo[1],bpm+4);$("bpm").textContent=bpm;$("sBpm").textContent=bpm;
-  if(bpm>=item.tempo[1])xToast("🎯 Hedef tempo: "+bpm+" BPM! Harika.");else xToast("📈 "+bpm+" BPM");}}};
-XH.start=function(src){xActive[src]=1;mMc[src]=0;ladLoops=0;};
+ if(src==="main"&&mi1===0&&ladOn&&item){ladLoops++;if(ladLoops%2===0&&bpm<item.tempo[1]){bpm=Math.min(item.tempo[1],bpm+4);$("bpm").textContent=bpm;$("sBpm").textContent=bpm;
+  if(bpm>=item.tempo[1])xToast("🎯 Hedef tempo: "+bpm+" BPM! Harika.");else xToast("📈 Tempo arttı: "+bpm+" BPM");}ladShow();}};
+function ladShow(){var el=$("xLadS");if(!el)return;if(!ladOn||!item){el.textContent="";return;}
+ if(bpm>=item.tempo[1]){el.textContent="📈 Hedef tempodasın ("+item.tempo[1]+" BPM)";return;}
+ var left=2-(ladLoops%2);el.textContent="📈 "+left+" tur sonra "+Math.min(item.tempo[1],bpm+4)+" BPM · hedef "+item.tempo[1];}
+XH.start=function(src){xActive[src]=1;mMc[src]=0;ladLoops=0;ladShow();};
 XH.stop=function(src){delete xActive[src];store("ra_days",JSON.stringify(DAYS));drawStreak();if(src==="main"&&mic.on)micStop(false);};
 
 /* ---------- seviye testi ---------- */
