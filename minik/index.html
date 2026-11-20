@@ -221,6 +221,7 @@ function rest(x,y0,d){var mid=y0+2*S,c=INK;
    if(d==3)o+='<circle cx="'+(x+6)+'" cy="'+(mid-2)+'" r="1.2" fill="'+c+'"/>';return o;}
  return '<circle cx="'+(x-1)+'" cy="'+(mid-4)+'" r="1.8" fill="'+c+'"/><circle cx="'+(x-2.5)+'" cy="'+(mid+0.5)+'" r="1.8" fill="'+c+'"/><path d="M'+(x-0.5)+','+(mid-3.3)+' Q'+(x+2)+','+(mid-3)+' '+(x+3.5)+','+(mid-5.5)+' L'+(x-1.5)+','+(mid+9)+'" fill="none" stroke="'+c+'" stroke-width="1.3"/><path d="M'+(x-2)+','+(mid+1.2)+' Q'+(x+0.5)+','+(mid+1.4)+' '+(x+2)+','+(mid-0.8)+'" fill="none" stroke="'+c+'" stroke-width="1.3"/>';}
 function countNames(meter){var M=METERS[meter],n=nSlots(meter);
+ if(M.trip){var t=[];for(var b=1;b<=M.ts[0];b++)t.push(String(b),"ve","a");return t;}
  if(M.ts[1]==4&&M.unit==2)return ["1","ve","2","ve","3","ve","4","ve"].slice(0,n);
  if(M.ts[1]==4&&M.unit==1)return ["1","e","ve","a","2","e","ve","a","3","e","ve","a","4","e","ve","a"];
  var o=[];M.groups.forEach(function(g){for(var k=0;k<g;k++)o.push(String(k+1));});return o;}
@@ -313,7 +314,7 @@ var ACODE=(function(){var SEC="PATkqmfcXhKKd23OMOmjiqJv",AL="ABCDEFGHJKMNPQRSTUV
   h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return 4294967296*(2097151&h2)+(h1>>>0);}
  function raw(name){var n=norm(name);if(n.length<3)return "";var x=h53(SEC+"|ritim-atolyesi|"+n,7),o="";for(var i=0;i<8;i++){o+=AL[x%31];x=Math.floor(x/31);}return o;}
  function rawP(name,p){var n=norm(name);if(n.length<3)return "";var x=h53(SEC+"|pk|"+p+"|"+n,11),o="";for(var i=0;i<8;i++){o+=AL[x%31];x=Math.floor(x/31);}return o;}
- var PACKS={RV:["s1v"],S1:["s1"],S2:["s2"],S3:["s3"],SS:["s1","s2","s3"],TR:["turk"],HR:["horon"],SH:["sahne"],TS:["turk","horon","sahne"],HB:["hobi"],MK:["minik"],TM:["s1","s1v","s2","s3","turk","horon","sahne","hobi","minik"]};
+ var PACKS={RV:["s1v"],S1:["s1"],S2:["s2"],S3:["s3"],S4:["s4"],SS:["s1","s2","s3"],TR:["turk"],HR:["horon"],SH:["sahne"],TS:["turk","horon","sahne"],HB:["hobi"],MK:["minik"],TM:["s1","s1v","s2","s3","s4","turk","horon","sahne","hobi","minik"]};
  function makeP(name,p){if(p==="RV")return make(name);var r=rawP(name,p);return r?"ALT-"+p+"-"+r.slice(0,4)+"-"+r.slice(4):"";}
  function pack(name,code){if(h53(SEC+"|tk|"+String(code||"").trim().toUpperCase(),13)===6611030349995919)return "TM";var c=String(code||"").toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/^ALT/,"");if(c.length===8)return check(name,c)?"RV":null;if(c.length===10){var p=c.slice(0,2);return PACKS[p]&&p!=="RV"&&rawP(name,p)===c.slice(2)?p:null;}return null;}
  function make(name){var r=raw(name);return r?"ALT-"+r.slice(0,4)+"-"+r.slice(4):"";}
