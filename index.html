@@ -723,18 +723,19 @@ function applyLic(v){LIC.name=v.name;LIC.codes=v.codes;LIC.packs=v.packs;
  $("gHello").textContent="Hoş geldin, "+v.name.split(" ")[0]+".";if(!prodId)drawLib();}
 function addCode(c){var p=ACODE.pack(LIC.name,c);if(!p)return null;var v=loadAct()||{name:LIC.name,codes:[]};c=c.trim().toUpperCase();if(v.codes.indexOf(c)<0)v.codes.push(c);saveAct(v);applyLic(loadAct()||{name:LIC.name,codes:[c],packs:[p]});return p;}
 function showGate(){var v=loadAct();$("gate").hidden=false;if(v){applyLic(v);$("gWelcome").hidden=false;$("gForm").hidden=true;}else{$("gWelcome").hidden=true;$("gForm").hidden=false;}}
+var WANT=null;try{WANT=new URLSearchParams(location.search).get("kitap");}catch(e){}
 function enterApp(){try{unlockIOS();}catch(x){}$("gate").hidden=true;try{sessionStorage.setItem("ra_in","1");}catch(x){}}
 $("gForm").addEventListener("submit",function(e){e.preventDefault();var n=$("gName").value.trim().replace(/\s+/g," "),c=$("gCode").value.trim().toUpperCase();
  if(ACODE.norm(n).length<3){$("gErr").textContent="Adını ve soyadını yaz.";return;}
  if(c&&!ACODE.pack(n,c)){$("gErr").textContent="Kod bu isimle eşleşmedi. Adını siparişte yazdığın gibi yaz, kodu kontrol et.";return;}
  var v={name:n,codes:c?[c]:[]};saveAct(v);applyLic(loadAct());enterApp();
- var p=c?ACODE.pack(n,c):null,first=p?ACODE.PACKS[p][0]:null;if(first)openProd(first);else drawLib();});
+ var p=c?ACODE.pack(n,c):null,first=p?ACODE.PACKS[p][0]:null;if(WANT&&PBY[WANT]&&unlocked(WANT))openProd(WANT);else if(first)openProd(first);else drawLib();});
 function openS(id){Array.prototype.forEach.call(document.querySelectorAll(".sheet-bg"),function(x){x.hidden=x.id!==id;});}
 $("setBtn").onclick=function(){openS("setS");};
 $("openBuy").onclick=function(){openS("buyS");};
 $("logout").onclick=function(){try{localStorage.removeItem("ra_act");sessionStorage.removeItem("ra_in");}catch(e){}memAct=null;LIC={name:"",packs:[]};stop();openS("");showLib();showGate();};
 Array.prototype.forEach.call(document.querySelectorAll(".sheet-bg"),function(bg){bg.addEventListener("click",function(e){if(e.target===bg||e.target.closest("[data-close]"))bg.hidden=true;});});
-$("gateGo").onclick=function(){enterApp();};
+$("gateGo").onclick=function(){enterApp();if(WANT&&PBY[WANT]&&unlocked(WANT))openProd(WANT);};
 
 /* kilit penceresi */
 var lockFor=null;
@@ -827,7 +828,7 @@ if(!SR){$("mic").hidden=true;}else{
 
 /* boot */
 (function(){var v=loadAct(),inn=false;try{inn=!!sessionStorage.getItem("ra_in");}catch(e){}
- if(v){applyLic(v);var saved=store("ra_item")||"",pid=store("ra_prod");if(pid&&unlocked(pid)&&saved.indexOf(pid+"|")===0)openProd(pid,saved);else if(pid&&unlocked(pid))openProd(pid);else showLib();}else showLib();
+ if(v){applyLic(v);var saved=store("ra_item")||"",pid=store("ra_prod");if(WANT&&PBY[WANT]&&unlocked(WANT))openProd(WANT);else if(pid&&unlocked(pid)&&saved.indexOf(pid+"|")===0)openProd(pid,saved);else if(pid&&unlocked(pid))openProd(pid);else showLib();}else showLib();
  if(v&&inn)$("gate").hidden=true;else showGate();
  if(prodId&&LAND.matches)openStage(false);})();
 var rz=null;window.addEventListener("resize",function(){clearTimeout(rz);rz=setTimeout(function(){drawPlayer();},120);});
