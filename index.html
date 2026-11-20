@@ -129,6 +129,8 @@ nav.tabs button[aria-current="page"]::before{content:"";position:absolute;top:-8
 .arrow{text-align:center;font-size:28px;color:var(--accent);animation:bob 1.2s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(6px)}}
 @media (prefers-reduced-motion:reduce){.arrow{animation:none}}
+#mic[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+#micMsg{align-self:center}
 .licbox{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px}
 .licbox b{display:block;font:700 18px var(--f-display);letter-spacing:.04em}
 .steps{margin:0;padding-left:20px}
@@ -208,6 +210,7 @@ body.hid .layout{filter:blur(18px)}
           <button class="btn" id="explain">🥁 Hoca gibi anlat</button>
           <button class="btn small" id="speak" hidden>🔊 Sesli dinle</button>
         </div>
+        <div class="row"><button class="btn" type="button" id="mic" aria-pressed="false">🎤 Sesli sor</button><span class="help" id="micMsg" aria-live="polite"></span></div>
         <form class="row" id="askForm">
           <input class="ask" id="askIn" placeholder="Takıldığın yeri yaz: “4'teki atakta eller nasıl?”" aria-label="Hocaya soru">
           <button class="btn" type="submit">Sor</button>
@@ -616,7 +619,7 @@ function sysText(){return "Sen Sinop'ta bateri eğitmeni Yunus Altay'ın yöntem
  "Öğrenciye 'sen' diye hitap et. Kısa paragraflar ve gerekirse numaralı adımlar kullan, en fazla 170 kelime. Markdown başlığı kullanma; vurgulamak için **kalın** yazabilirsin. Kendinden yapay zekâ ya da bir program olarak söz etme. "+
  "Yöntem kuralları: her etüt 60 BPM ile başlar, her tempoda 3 dakika çalınır, temizse 12 BPM artırılır, zorlanırsa 5 BPM düşülür; nota değeri küçülünce metronom hızlanmaz. "+
  "Sağ elini kullanan davulcu için: hi-hat ve ride sağ el, trampet sol el, kick sağ ayak, hi-hat ayak sol ayak. Yüksek sesle saymayı öner. Uydurma şarkı adı verme.";}
-function showAns(t){var box=$("answer");box.hidden=false;box.innerHTML=fmt(t);lastAnswer=t;$("speak").hidden=!(tts||window.speechSynthesis);}
+function showAns(t){var box=$("answer");box.hidden=false;box.innerHTML=fmt(t);lastAnswer=t;$("speak").hidden=!(tts||window.speechSynthesis);if(voiceReply){voiceReply=false;var sp=$("speak");sp.setAttribute("aria-pressed","false");sp.click();}}
 function ask(q){if(!item)return;if(!sample){showAns(localExplain(item,q));return;}
  if(abortC)abortC.abort();abortC=new AbortController();
  var box=$("answer");box.hidden=false;box.textContent="Hoca düşünüyor…";$("speak").hidden=true;
@@ -720,6 +723,21 @@ function doInstall(){
 function showInst(k){$("iInapp").hidden=k!=="inapp";$("iIOS").hidden=k!=="ios";$("iAnd").hidden=k!=="and";$("iDone").hidden=k!=="done";openS("inst");}
 Array.prototype.forEach.call(document.querySelectorAll(".js-install"),function(b){b.addEventListener("click",doInstall);});
 updInstall();
+
+/* sesli soru, sesli cevap */
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,listening=false,voiceReply=false;
+function micState(on,msg){listening=on;var b=$("mic");b.setAttribute("aria-pressed",on);b.innerHTML=on?"■ Dinliyorum…":"🎤 Sesli sor";$("micMsg").textContent=msg||"";}
+if(!SR){$("mic").hidden=true;}else{
+ $("mic").addEventListener("click",function(){
+  if(listening){try{rec.stop();}catch(e){}return;}
+  try{speechSynthesis.cancel();}catch(e){}
+  rec=new SR();rec.lang="tr-TR";rec.interimResults=true;rec.maxAlternatives=1;rec.continuous=false;
+  var finalText="";
+  rec.onresult=function(ev){var t="";for(var i=0;i<ev.results.length;i++){t+=ev.results[i][0].transcript;if(ev.results[i].isFinal)finalText=t;}$("askIn").value=t;};
+  rec.onerror=function(ev){var m=ev.error==="not-allowed"||ev.error==="service-not-allowed"?"Mikrofon izni verilmedi. Telefonun ayarlarından tarayıcıya mikrofon izni ver.":ev.error==="no-speech"?"Ses duyulmadı, tekrar dene.":"Ses alınamadı, tekrar dene.";micState(false,m);};
+  rec.onend=function(){var q=($("askIn").value||finalText).trim();var wasOn=listening;micState(false,$("micMsg").textContent);if(wasOn&&q){voiceReply=true;ask(q);$("askIn").value="";}};
+  try{rec.start();micState(true,"Sorunu söyle, susunca cevap gelir.");}catch(e){micState(false,"Ses alınamadı, tekrar dene.");}
+ });}
 
 /* boot */
 drawChips();
