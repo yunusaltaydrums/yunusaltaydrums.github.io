@@ -337,6 +337,32 @@ body.hid .layout{filter:blur(18px)}
 .dk{padding:18px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;color:#1c1917}
 .dk b{font-size:18px}.dk p{margin:0;color:#57534e;font-size:14px;max-width:440px}
 .dk-b{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.rt{margin:0;font:700 24px var(--f-display);letter-spacing:.04em;text-transform:uppercase}
+.rvar{margin:0;font-size:13px;font-weight:600;color:var(--accent)}
+.rbox{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:3px}
+.rb{border:1px solid var(--line);background:var(--bg);border-radius:8px;min-height:50px;padding:3px 0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;cursor:pointer;color:var(--fg)}
+.rb b{font:800 16px Georgia,serif;height:20px;line-height:20px}
+.rb small{font:600 10.5px var(--f-body);color:var(--muted)}
+.rb.gs small{color:var(--fg);font-weight:800}
+.rb.on{background:var(--accent);border-color:var(--accent);color:#fff}.rb.on small{color:#fff}
+.rb:disabled{opacity:.35;cursor:default}
+.rb.ph{outline:2px solid var(--accent);outline-offset:1px}
+.rpre{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rmode{display:flex;gap:6px;flex-wrap:wrap}
+.rcard{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;cursor:pointer;color:var(--fg)}
+.rcard .rn{flex:none;width:34px;height:34px;border-radius:50%;background:#0f766e;color:#fff;display:grid;place-items:center;font:700 14px var(--f-body)}
+.rcard b{display:block;font-size:15px}.rcard small{color:var(--muted);font-size:12.5px}
+.rcard .st{margin-left:auto;color:var(--muted)}
+.rcard.cur{border-color:var(--accent)}.rcard.locked{opacity:.6}
+.xlv{display:flex;align-items:center;gap:8px}
+.xlv .lv{font:700 13px var(--f-body);background:var(--fg);color:var(--bg);border-radius:6px;padding:2px 7px}
+.xlv .xbar{flex:1}.xlv small{font-size:12px;color:var(--muted);white-space:nowrap}
+.xsess{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:25;width:min(96vw,560px);background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:6px}
+.xs-row{display:flex;gap:6px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.xs-row b{font-size:14px}.xs-row span{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.xs-bars{display:flex;flex-direction:column;gap:4px}
+@keyframes xfall{to{transform:translateY(110vh) rotate(540deg)}}
+.xsess:not([hidden])~.xtoast,body:has(.xsess:not([hidden])) .xtoast{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 </style>
 
 <div lang="tr" class="wrap">
@@ -435,6 +461,25 @@ body.hid .layout{filter:blur(18px)}
         <p class="help" id="cLimit" style="margin:0"></p>
       </div>
     </div>
+  </section>
+  <section class="cv-wrap" id="rudView" aria-label="Rudimentler" hidden>
+    <div class="ccard">
+      <div><h2 class="rt" id="rTitle"></h2><p class="help" id="rDesc" style="margin:2px 0 0"></p></div>
+      <p class="rvar" id="rVar"></p>
+      <div id="rBoxes"></div>
+      <div class="rpre" id="rPre"><span class="help">Hızlı seçim:</span>
+        <button class="btn small" data-p="def">Varsayılan</button><button class="btn small" data-p="beat">1 2 3 4</button><button class="btn small" data-p="e">“e”ler</button><button class="btn small" data-p="ve">“ve”ler</button><button class="btn small" data-p="a">“a”lar</button><button class="btn small" data-p="rnd">🎲 Rastgele</button><button class="btn small" data-p="none">Temizle</button>
+      </div>
+      <div class="staff" id="rStaff"></div>
+      <div class="transport">
+        <button class="btn primary play" id="rPlay">▶ Çal</button>
+        <div class="tempo"><button class="btn" id="rDown" aria-label="5 BPM düşür">−5</button><div><div class="bpm" id="rBpm">70</div><small>BPM</small></div><button class="btn up" id="rUp" aria-label="5 BPM artır">+5</button></div>
+        <button class="btn small" id="rLad" aria-pressed="false">📈 +2 BPM</button>
+        <div class="rmode" id="rMode" role="group" aria-label="Çalışma yeri"><button class="btn small" data-m="pad" aria-pressed="true">🥁 Pad (trampet)</button><button class="btn small" data-m="kit" aria-pressed="false">🎶 Davul (aksanlar tomlarda)</button></div>
+      </div>
+      <p class="help" style="margin:0">Pad modunda evde pad ya da trampette çalış. Davul modunda aksanlı notalar tomlara dağılır, kick 1 ve 3'te. Rolllar açık (yavaş) yazılmıştır; hızlandıkça kapanır.</p>
+    </div>
+    <div id="rList"></div>
   </section>
   <section class="libv" id="libView" aria-label="Kitaplık" hidden>
     <div class="lib-hello"><h2>Kitaplığın</h2><p id="libSub">Açık kitaplarına dokun, çalışmaya başla. Kilitli olanları kodunla açabilirsin.</p>
@@ -632,6 +677,11 @@ body.hid .layout{filter:blur(18px)}
     <div id="xDayBox"></div>
     <button class="btn primary" data-close>Tamam</button>
   </div>
+</div>
+<div lang="tr" class="xsess" id="xSess" hidden>
+  <div class="xs-row"><b id="xsTitle"></b><span id="xsTime"></span></div>
+  <div class="xs-bars"><div class="xbar"><i id="xsEx"></i></div><div class="xbar"><i id="xsAll" style="background:#16a34a"></i></div></div>
+  <div class="xs-row"><button class="btn small" id="xsPrev">‹ Önceki</button><button class="btn small primary" id="xsPlay">▶ / ■</button><button class="btn small" id="xsNext">Sonraki ›</button><button class="btn small" id="xsStop">✕ Bitir</button></div>
 </div>
 <div lang="tr" class="sheet-bg" id="lockS" hidden>
   <div class="sheet" role="dialog" aria-labelledby="lockT">
@@ -1064,7 +1114,7 @@ $("addCode").onclick=function(){openLock(null);};$("setCode").onclick=function()
 /* kitaplık */
 function drawLib(){$("libList").innerHTML=SERIES.map(function(sr){return '<div class="lser">'+sr[0]+'</div><div class="lgrid">'+sr[1].filter(function(id){return PBY[id];}).map(function(id){var p=PBY[id],u=unlocked(id);
   return '<button class="book'+(u?'':' locked')+'" data-p="'+id+'"><span class="cv">'+COVER[id]+'</span><span class="bt"><b>'+esc(p.title)+'</b><small>'+nItems(p)+' egzersiz</small></span><span class="st">'+(u?'Aç':'🔒 Kod')+'</span></button>';}).join("")+(sr[0]==="Hobi ve çocuklar"?'<a class="book" href="minik/" style="text-decoration:none;color:inherit"><span class="cv" style="background:#7c3aed;color:#fff">🥁</span><span class="bt"><b>Minik Davulcu uygulaması</b><small>Çocuklar için oyunlu, büyük yazılı ayrı uygulama</small></span><span class="st">Aç ›</span></a>':'')+'</div>';}).join("");}
-$("libList").addEventListener("click",function(e){var b=e.target.closest(".book");if(!b)return;var id=b.getAttribute("data-p");if(unlocked(id))openProd(id);else openLock(id);});
+$("libList").addEventListener("click",function(e){var b=e.target.closest(".book");if(!b||!b.getAttribute("data-p"))return;var id=b.getAttribute("data-p");if(unlocked(id))openProd(id);else openLock(id);});
 function showLib(){stop();if(typeof stageOn!=="undefined"&&stageOn)closeStage();prodId=null;store("ra_prod","");$("libView").hidden=false;$("prodView").hidden=true;$("chips").innerHTML="";$("backLib").hidden=true;$("hTitle").textContent="Ritim Atölyesi";drawLib();window.scrollTo({top:0});}
 function openProd(id,restore){if(!PBY[id]||!unlocked(id)){showLib();return;}prodId=id;store("ra_prod",id);$("libView").hidden=true;$("prodView").hidden=false;$("backLib").hidden=false;$("hTitle").textContent=PSHORT[id]||PBY[id].title;
  var ss=sections(),sv=(restore||"").split("|"),sec=ss.filter(function(x){return x.id===sv[1];})[0]||ss[0];secId=sec.id;drawChips();drawSection();
@@ -1684,7 +1734,7 @@ function openComp(){stop();if(typeof stageOn!=="undefined"&&stageOn)closeStage()
  $("cSym").innerHTML=[["&gt;","Aksan: güçlü vuruş"],["^","Sert aksan (marcato)"],["( )","Ghost: çok hafif vuruş"],["fl","Flam: önünde tek süs notası"],["dr","Drag: önünde iki süs notası"],["z","Roll: sapta z, sürekli tıngırtı"],["o","Açık hi-hat: notanın üstünde küçük daire"],["𝄆 𝄇","Tekrar: iki işaret arası tekrar çalınır, ×3 gibi sayı kaç kez olduğunu söyler"],["%","Önceki ölçünün aynısını çal"],["R L","Sağ el, sol el"],["mf","Nüans: pp çok hafif … ff çok güçlü"],["⇅","Profesyonel yazım: eller (zil, trampet, tomlar) sapı yukarı, ayaklar (kick, hi-hat ayak) sapı aşağı yazılır; her katmanın kendi esi olur. Gerçek davul kitapları ve grup notaları böyle yazılır."]].map(function(x){return '<span>'+x[0]+'</span><div>'+x[1]+'</div>';}).join("");
  cRender();window.scrollTo({top:0});}
 function hideComp(){cStop();var ps=$("printSheet");if(ps)ps.innerHTML="";var v=$("compView");if(v)v.hidden=true;store("ra_view","");}
-window.altayNota=function(P,w,o){return compSVG(P,w,o||{});};window.altayOrder=function(ms){return pieceOrder(ms);};
+window.altayNota=function(P,w,o){return compSVG(P,w,o||{});};window.altayMeter=function(k,d){if(!METERS[k])METERS[k]=d;};window.altayOrder=function(ms){return pieceOrder(ms);};
 var _st=staffSVG;staffSVG=function(it,w,ph,pr){if(it&&it.comp){if(!ph){var q=JSON.parse(JSON.stringify(it.comp));q.cnt=false;q.ms=q.ms.slice(0,2);q.ms.forEach(function(m){delete m.txt;delete m.dyn;delete m.hp;delete m.end;delete m.v;delete m.seg;delete m.coda;});return compSVG(q,w,{perRow:2,fill:true,compact:true});}return compSVG(it.comp,w,{ph:ph,pre:"ph",perRow:pr||4,fill:true});}return _st.apply(null,arguments);};
 var _dm=drawMeasure;
 drawMeasure=function(m,meter,x0,x1,y0,idx){if(prodId==="s3"&&METERS[meter]){var cm=fromLib({m:meter,notes:m.notes||{},acc:m.acc||[]});return cMeasure2(cm,meter,x0,x1,y0,idx,{cnt:true},"ph",{cntY:40,noStk:true});}return _dm.apply(null,arguments);};
@@ -1720,7 +1770,7 @@ function drawStreak(target){var el=target||$("xStreak");if(!el)return;var s=stre
  el.innerHTML='<div class="xs-top"><b>🔥 '+s+' gün seri</b><span>Bugün '+Math.min(today,10)+' / 10 dk</span></div><div class="xbar"><i style="width:'+Math.min(100,today*10)+'%"></i></div><div class="xdots">'+dots+'</div>'+
   '<div class="xbadges">'+(got.length?got.map(function(b){return '<span title="'+b[1]+'">'+b[0]+' '+b[1]+'</span>';}).join(""):'<span class="help">Her gün 10 dakika çal, seri başlasın. İlk rozetin bugün!</span>')+'</div>';}
 function dayChip(){var m=Math.floor((DAYS[dkey()]||0)/60),s=(DAYS[dkey()]||0)%60,t="🔥 "+streak()+" gün seri · bugün "+m+":"+("0"+s).slice(-2)+" / 10:00";["xDay","cDay"].forEach(function(id){var el=$(id);if(el)el.textContent=t;});}
-setInterval(function(){dayChip();if(!(playing||cPlaying)||document.hidden)return;var k=dkey(),before=DAYS[k]||0;DAYS[k]=before+1;
+setInterval(function(){dayChip();if(!(playing||cPlaying||(typeof rOn!=="undefined"&&rOn))||document.hidden)return;var k=dkey(),before=DAYS[k]||0;DAYS[k]=before+1;
  if(DAYS[k]%10===0)store("ra_days",JSON.stringify(DAYS));
  if(before<GOAL&&DAYS[k]>=GOAL){store("ra_days",JSON.stringify(DAYS));xToast("🎉 Bugünkü 10 dakikanı tamamladın! Seri: "+streak()+" gün");}},1000);
 window.addEventListener("pagehide",function(){store("ra_days",JSON.stringify(DAYS));});
@@ -1884,6 +1934,143 @@ $("cDk").onclick=function(){var ref=dkRef();if(!ref)return;var tot=0,ok=0,ext=0,
  $("xMicAgain").hidden=true;openS("xMicS");};
 function nmAt(names,s){var b=s;while(b>0&&!/^\d/.test(names[b]))b--;return b===s?names[s]:names[b]+" "+names[s];}
 var _ma=$("xMicAgain").onclick;$("xMic").addEventListener("click",function(){$("xMicST").textContent="Puanın";$("xMicAgain").hidden=false;});
+
+/* ================= Rudiment kütüphanesi, Bugünün çalışması, Seviye/XP, titreşim ================= */
+/* rudimentler: g=ızgara (44_16 / 44_t / 44_8), s=el (R/L, "." boş), a=varsayılan aksan konumları, f=flam, d=drag, z=buzz; açık (yavaş) çalım */
+var RUD=[
+ {fam:"Roll'lar",id:"r1",n:"Single Stroke Roll",tr:"Tek vuruş: R L R L. En temel el çalışması.",g:"44_16",s:"RLRLRLRLRLRLRLRL",a:[0,4,8,12]},
+ {fam:"Roll'lar",id:"r2",n:"Single Stroke Four",tr:"Üçlemenin üç notası + vuruşta dördüncü, aksanlı.",g:"44_t",s:"RLRL..LRLR..",a:[3,9]},
+ {fam:"Roll'lar",id:"r3",n:"Single Stroke Seven",tr:"Altı üçleme notası + aksanlı yedinci.",g:"44_t",s:"RLRLRLR.....",a:[6]},
+ {fam:"Roll'lar",id:"r4",n:"Multiple Bounce Roll",tr:"Buzz roll: bagetleri deriye bastırıp sektir.",g:"44_8",s:"RLRLRLRL",a:[],z:[0,1,2,3,4,5,6,7]},
+ {fam:"Roll'lar",id:"r5",n:"Triple Stroke Roll",tr:"Her elle üç vuruş: R R R L L L.",g:"44_t",s:"RRRLLLRRRLLL",a:[0,3,6,9]},
+ {fam:"Roll'lar",id:"r6",n:"Double Stroke Roll",tr:"Çift vuruş: R R L L. İkinci vuruş birincisi kadar güçlü olsun.",g:"44_16",s:"RRLLRRLLRRLLRRLL",a:[0,4,8,12]},
+ {fam:"Roll'lar",id:"r7",n:"Five Stroke Roll",tr:"İki çift + aksanlı tek: R R L L R.",g:"44_16",s:"RRLLR...LLRRL...",a:[4,12]},
+ {fam:"Roll'lar",id:"r8",n:"Six Stroke Roll",tr:"Aksanlı tek, iki çift, aksanlı tek: R LL RR L.",g:"44_16",s:"RLLRRL..RLLRRL..",a:[0,5,8,13]},
+ {fam:"Roll'lar",id:"r9",n:"Seven Stroke Roll",tr:"Üç çift + aksanlı tek.",g:"44_16",s:"RRLLRRL.LLRRLLR.",a:[6,14]},
+ {fam:"Roll'lar",id:"r10",n:"Nine Stroke Roll",tr:"Dört çift + aksanlı tek.",g:"44_16",s:"RRLLRRLLR.......",a:[8]},
+ {fam:"Roll'lar",id:"r11",n:"Ten Stroke Roll",tr:"Dört çift + iki aksanlı tek.",g:"44_16",s:"RRLLRRLLRL......",a:[8,9]},
+ {fam:"Roll'lar",id:"r13",n:"Thirteen Stroke Roll",tr:"Altı çift + aksanlı tek.",g:"44_16",s:"RRLLRRLLRRLLR...",a:[12]},
+ {fam:"Roll'lar",id:"r15",n:"Fifteen Stroke Roll",tr:"Yedi çift + aksanlı tek.",g:"44_16",s:"RRLLRRLLRRLLRRL.",a:[14]},
+ {fam:"Diddle'lar",id:"d1",n:"Single Paradiddle",tr:"R L R R  L R L L. Her grubun ilk notası aksanlı.",g:"44_16",s:"RLRRLRLLRLRRLRLL",a:[0,4,8,12]},
+ {fam:"Diddle'lar",id:"d2",n:"Double Paradiddle",tr:"R L R L R R  L R L R L L. Altılı grup: üçleme ızgarasında.",g:"44_t",s:"RLRLRRLRLRLL",a:[0,6]},
+ {fam:"Diddle'lar",id:"d3",n:"Triple Paradiddle",tr:"R L R L R L R R  L R L R L R L L. Sekizli grup.",g:"44_16",s:"RLRLRLRRLRLRLRLL",a:[0,8]},
+ {fam:"Diddle'lar",id:"d4",n:"Paradiddle-diddle",tr:"R L R R L L. Tomlarda çok kullanılır.",g:"44_t",s:"RLRRLLRLRRLL",a:[0,6]},
+ {fam:"Diddle'lar",id:"d5",n:"Inverted Paradiddle",tr:"R L L R  L R R L. Çift ortada.",g:"44_16",s:"RLLRLRRLRLLRLRRL",a:[0,4,8,12]},
+ {fam:"Flam'ler",id:"f1",n:"Flam",tr:"Asıl vuruştan hemen önce öbür elle çok hafif süs vuruşu. Eller sırayla.",g:"44_8",s:"RLRLRLRL",a:[],f:[0,1,2,3,4,5,6,7]},
+ {fam:"Flam'ler",id:"f2",n:"Flam Accent",tr:"Üçlemede flam + iki tek vuruş.",g:"44_t",s:"RLRLRLRLRLRL",a:[0,3,6,9],f:[0,3,6,9]},
+ {fam:"Flam'ler",id:"f3",n:"Flam Tap",tr:"Flam + aynı elle tap: fR R fL L.",g:"44_16",s:"RRLLRRLLRRLLRRLL",a:[0,2,4,6,8,10,12,14],f:[0,2,4,6,8,10,12,14]},
+ {fam:"Flam'ler",id:"f4",n:"Flamacue",tr:"Flam, aksanlı ikinci nota, iki tek, flam.",g:"44_16",s:"LRLRL...LRLRL...",a:[1,9],f:[0,4,8,12]},
+ {fam:"Flam'ler",id:"f5",n:"Flam Paradiddle",tr:"Paradiddle'ın her grubunun başında flam.",g:"44_16",s:"RLRRLRLLRLRRLRLL",a:[0,4,8,12],f:[0,4,8,12]},
+ {fam:"Flam'ler",id:"f6",n:"Single Flammed Mill",tr:"R R L R  L L R L, grup başlarında flam.",g:"44_16",s:"RRLRLLRLRRLRLLRL",a:[0,4,8,12],f:[0,4,8,12]},
+ {fam:"Flam'ler",id:"f7",n:"Flam Paradiddle-diddle",tr:"Paradiddle-diddle'ın başında flam.",g:"44_t",s:"RLRRLLRLRRLL",a:[0,6],f:[0,6]},
+ {fam:"Flam'ler",id:"f8",n:"Pataflafla",tr:"Dört notanın ilk ve sonunda flam.",g:"44_16",s:"RLRLRLRLRLRLRLRL",a:[0,3,4,7,8,11,12,15],f:[0,3,4,7,8,11,12,15]},
+ {fam:"Flam'ler",id:"f9",n:"Swiss Army Triplet",tr:"fR R L üçleme: flam, aynı elle tap, öbür el.",g:"44_t",s:"RRLRRLRRLRRL",a:[0,3,6,9],f:[0,3,6,9]},
+ {fam:"Drag'ler",id:"g1",n:"Drag",tr:"Asıl vuruştan önce öbür elle iki hafif süs vuruşu.",g:"44_8",s:"RLRLRLRL",a:[],d:[0,1,2,3,4,5,6,7]},
+ {fam:"Drag'ler",id:"g2",n:"Lesson 25",tr:"Drag + R L R: dragın ardından üç tek vuruş, sonuncusu aksanlı.",g:"44_16",s:"RLR.LRL.RLR.LRL.",a:[2,6,10,14],d:[0,4,8,12]},
+ {fam:"Drag'ler",id:"g3",n:"Single Ratamacue",tr:"Drag + üç üçleme notası + aksanlı vuruş.",g:"44_t",s:"RLRL..LRLR..",a:[3,9],d:[0,6]},
+ {fam:"Drag'ler",id:"g4",n:"Drag Paradiddle",tr:"Aksanlı tek vuruş, sonra dragla paradiddle.",g:"44_16",s:"R.RLRRL.LRLL....",a:[0,7],d:[2,9]}
+];
+var RFREE=6;
+function rudOpen(i){return OPEN_ALL||i<RFREE||(LIC.packs&&LIC.packs.length>0);}
+var rud=null,rAcc={},rMode="pad",rBpm=70,rOn=false,rT=0,rStep=0,rLoops=0,rTimer=null,rLad=false,rLast=[];
+function rMeasure(){var R=rud,ms=newMeasure(R.g),n=nSlots(R.g),toms=["t1","t2","ft"],tk=0;
+ for(var s=0;s<n;s++){var ch=R.s.charAt(s);if(ch!=="R"&&ch!=="L")continue;var acc=!!rAcc[s],ins="sd";
+  if(rMode==="kit"&&acc){ins=toms[tk%3];tk++;}
+  setNote(ms,s,ins,true);ms.k[s]=ch;
+  if((R.f||[]).indexOf(s)>=0)ms.a[s+":"+ins]="fl";else if((R.d||[]).indexOf(s)>=0)ms.a[s+":"+ins]="dr";else if((R.z||[]).indexOf(s)>=0)ms.a[s+":"+ins]="rl";
+  if(acc&&!ms.a[s+":"+ins])ms.a[s+":"+ins]="acc";}
+ if(rMode==="kit"){var cl=cClicks(R.g);for(var q=0;q<n;q++)if(cl[q]&&q%(cspc(R.g)*2)===0)setNote(ms,q,"bd",true);}
+ return ms;}
+function rDraw(){var ms=rMeasure(),n=nSlots(rud.g),names=cCount(rud.g),gs=groupStarts(rud.g),h=[];
+ $("rTitle").textContent=rud.n;$("rDesc").textContent=rud.tr;
+ h.push('<div class="rbox" style="--n:'+n+'">');for(var s=0;s<n;s++){var playable=/[RL]/.test(rud.s.charAt(s));
+  h.push('<button class="rb'+(rAcc[s]?' on':'')+(gs[s]?' gs':'')+'" data-s="'+s+'"'+(playable?'':' disabled')+' aria-pressed="'+(!!rAcc[s])+'" aria-label="'+names[s]+' aksan"><b>'+(rAcc[s]?'&gt;':'')+'</b><small>'+names[s]+'</small></button>');}
+ h.push('</div>');$("rBoxes").innerHTML=h.join("");
+ var box=$("rStaff"),w=Math.max(300,Math.round(box.clientWidth-8));box.innerHTML=compSVG({title:"",bpm:rBpm,cnt:true,ms:[ms]},w,{perRow:1,fill:true,ph:true,pre:"rph"});
+ var k=0,pos=0,cnt=0;for(var q=0;q<n;q++)if(/[RL]/.test(rud.s.charAt(q))){if(rAcc[q])k|=(1<<cnt);cnt++;}
+ $("rVar").textContent="Varyasyon "+(k+1)+" / "+Math.pow(2,cnt)+" · Kutulara dokunarak aksanın yerini sen seç";
+ $("rBpm").textContent=rBpm;$("rLad").setAttribute("aria-pressed",String(rLad));
+ Array.prototype.forEach.call(document.querySelectorAll("#rMode button"),function(b){b.setAttribute("aria-pressed",String(b.getAttribute("data-m")===rMode));});}
+function rList(){var fam="",h=[];RUD.forEach(function(R,i){if(R.fam!==fam){fam=R.fam;h.push('<div class="lser">'+esc(fam)+'</div>');}
+ var op=rudOpen(i);h.push('<button class="rcard'+(rud===R?' cur':'')+(op?'':' locked')+'" data-i="'+i+'"><span class="rn">'+(i+1)+'</span><span><b>'+esc(R.n)+'</b><small>'+esc(R.tr)+'</small></span><span class="st">'+(op?'›':'🔒')+'</span></button>');});
+ $("rList").innerHTML=h.join("");}
+function rSelect(i){if(!rudOpen(i)){openLock(null);return;}rStop();rud=RUD[i];rAcc={};rud.a.forEach(function(s){rAcc[s]=1;});store("ra_rud",rud.id);rDraw();rList();window.scrollTo({top:0,behavior:"smooth"});}
+function rStart(){if(playing)stop();unlockIOS();var a=ctx();if(!a)return;if(a.state==="suspended")a.resume();rOn=true;rStep=0;rLoops=0;rT=a.currentTime+0.1;
+ var n=nSlots(rud.g),dt=60/rBpm/cspc(rud.g),cl=cClicks(rud.g);for(var s=0;s<n;s++)if(cl[s])hit(s===0?"c1":"c0",rT+s*dt);rT+=n*dt;
+ XH.start("rud");rTimer=setInterval(rTick,25);$("rPlay").textContent="■ Dur";}
+function rStop(){if(rOn)XH.stop("rud");rOn=false;clearInterval(rTimer);rLast.forEach(function(e){e.setAttribute("opacity","0");});rLast=[];document.querySelectorAll(".rb.ph").forEach(function(b){b.classList.remove("ph");});var b=$("rPlay");if(b)b.textContent="▶ Çal";}
+function rTick(){var a=AC;var ms=rMeasure(),n=nSlots(rud.g),cl=cClicks(rud.g);
+ while(rT<a.currentTime+0.12){var dt=60/rBpm/cspc(rud.g),ins=ms.n[rStep]||[];
+  ins.forEach(function(i){var md=ms.a[rStep+":"+i];cHit(i,rT,md==="acc"?1.35:(i==="bd"?0.9:0.8),md,dt);});
+  if(cl[rStep])hit(rStep===0?"c1":"c0",rT,0.6);XH.step(rT,rud.g,rStep,ins,dt,"rud",0);
+  (function(s,w){setTimeout(function(){if(!rOn)return;rLast.forEach(function(e){e.setAttribute("opacity","0");});rLast=[];var r=document.getElementById("rph0_"+s);if(r){r.setAttribute("opacity","0.28");rLast.push(r);}
+   document.querySelectorAll(".rb.ph").forEach(function(b){b.classList.remove("ph");});var bb=document.querySelector('.rb[data-s="'+s+'"]');if(bb)bb.classList.add("ph");},Math.max(0,(w-a.currentTime)*1000));})(rStep,rT);
+  rT+=dt;rStep++;if(rStep>=n){rStep=0;rLoops++;if(rLad&&rLoops%2===0&&rBpm<200){rBpm+=2;$("rBpm").textContent=rBpm;}}}}
+function openRud(){stop();hideComp();prodId=null;store("ra_prod","");store("ra_view","rud");$("libView").hidden=true;$("prodView").hidden=true;$("rudView").hidden=false;$("chips").innerHTML="";$("backLib").hidden=false;$("hTitle").textContent="Rudimentler";
+ if(!rud){var id=store("ra_rud"),k=0;RUD.forEach(function(R,i){if(R.id===id&&rudOpen(i))k=i;});rud=RUD[k];rAcc={};rud.a.forEach(function(s){rAcc[s]=1;});}
+ rList();rDraw();window.scrollTo({top:0});}
+function hideRud(){rStop();var v=$("rudView");if(v)v.hidden=true;}
+$("rBoxes").addEventListener("click",function(e){var b=e.target.closest(".rb");if(!b||b.disabled)return;var s=+b.getAttribute("data-s");if(rAcc[s])delete rAcc[s];else rAcc[s]=1;rDraw();
+ try{unlockIOS();var a=ctx();if(a&&!rOn)cHit("sd",a.currentTime+0.02,rAcc[s]?1.35:0.7,null,0.2);}catch(x){}});
+$("rPre").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var p=b.getAttribute("data-p"),n=nSlots(rud.g),names=cCount(rud.g);rAcc={};
+ for(var s=0;s<n;s++){if(!/[RL]/.test(rud.s.charAt(s)))continue;var nm=names[s];
+  if(p==="beat"&&/^\d/.test(nm))rAcc[s]=1;else if(p==="ve"&&nm==="ve")rAcc[s]=1;else if(p==="e"&&nm==="e")rAcc[s]=1;else if(p==="a"&&nm==="a")rAcc[s]=1;else if(p==="def"&&rud.a.indexOf(s)>=0)rAcc[s]=1;else if(p==="rnd"&&Math.random()<0.3)rAcc[s]=1;}
+ rDraw();});
+$("rMode").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;rMode=b.getAttribute("data-m");rDraw();});
+$("rList").addEventListener("click",function(e){var b=e.target.closest(".rcard");if(b)rSelect(+b.getAttribute("data-i"));});
+$("rPlay").onclick=function(){rOn?rStop():rStart();};
+$("rDown").onclick=function(){rBpm=Math.max(30,rBpm-5);$("rBpm").textContent=rBpm;};
+$("rUp").onclick=function(){rBpm=Math.min(220,rBpm+5);$("rBpm").textContent=rBpm;};
+$("rLad").onclick=function(){rLad=!rLad;this.setAttribute("aria-pressed",String(rLad));xToast(rLad?"📈 Her 2 turda +2 BPM":"Hız artışı kapalı");};
+var _hc=hideComp;hideComp=function(){_hc();hideRud();};
+var _oc2=openComp;openComp=function(){hideRud();_oc2();};
+window.addEventListener("resize",function(){if(!$("rudView").hidden&&rud)rDraw();});
+
+/* kitaplıkta kartlar */
+var _drawLib3=drawLib;drawLib=function(){_drawLib3();var el=$("libList");if(!el)return;var d=document.createElement("div");
+ d.innerHTML='<div class="lser">Teknik · pad ya da davulda</div><div class="lgrid"><button class="book xrud" type="button"><span class="cv" style="background:#0f766e;color:#fff">RL</span><span class="bt"><b>Rudiment kütüphanesi</b><small>'+RUD.length+' rudiment · aksanların yerini sen seç · '+RFREE+' tanesi ücretsiz</small></span><span class="st">Aç ›</span></button></div>';
+ var promo=el.querySelector(".cpromo");var ser=promo?promo.previousElementSibling:null;while(d.firstChild)el.insertBefore(d.firstChild,ser||null);};
+$("libList").addEventListener("click",function(e){if(e.target.closest(".xrud"))openRud();});
+
+/* ---------- Seviye / XP ---------- */
+var SESS=+(store("ra_sess")||0);
+function xpNow(){var t=0;for(var k in DAYS)t+=DAYS[k];return Math.floor(t/6)+SESS*50;}
+function lvOf(xp){var l=1;while(xp>=lvNeed(l+1))l++;return l;}
+function lvNeed(l){return 150*(l-1)*(l-1);}
+var _ds=drawStreak;drawStreak=function(t){_ds(t);var el=t||$("xStreak");if(!el)return;var xp=xpNow(),l=lvOf(xp),a=lvNeed(l),b=lvNeed(l+1),p=Math.round((xp-a)/(b-a)*100);
+ el.insertAdjacentHTML("afterbegin",'<div class="xlv"><span class="lv">LV '+l+'</span><div class="xbar"><i style="width:'+p+'%"></i></div><small>'+xp+' / '+b+' XP</small></div>');};
+
+/* ---------- titreşimli metronom (Android) ---------- */
+var vibOn=store("ra_vib")==="1",canVib=!!navigator.vibrate;
+(function(){var b=document.createElement("button");b.className="btn small";b.id="xVib";b.textContent="📳 Titreşim";b.hidden=!canVib;b.setAttribute("aria-pressed",String(vibOn));$("xMus").after(b);
+ b.onclick=function(){vibOn=!vibOn;store("ra_vib",vibOn?"1":"0");b.setAttribute("aria-pressed",String(vibOn));if(vibOn)try{navigator.vibrate(40);}catch(e){}xToast(vibOn?"📳 Telefon her vuruşta titrer: kulaklıkla ya da sessiz çalışırken tempoyu hissedersin.":"Titreşim kapalı");};})();
+var _xs=XH.step;XH.step=function(t,meter,step,ins,dt,src,mi0){_xs.apply(null,arguments);if(vibOn&&canVib&&cClicks(meter)[step]){var w=(t-AC.currentTime)*1000;setTimeout(function(){try{navigator.vibrate(step===0?60:30);}catch(e){}},Math.max(0,w));}};
+
+/* ---------- Bugünün çalışması ---------- */
+var SS=null;/* {list:[{p,sec,code,name}],i,t,tot} */
+function pickSession(){var lvl=store("ra_test")||"",order=["free","s1","s2","s3","s4"],avail=order.filter(function(p){return PBY[p]&&unlocked(p);});
+ var main=avail.indexOf(lvl)>=0?lvl:(avail[avail.length-1]||"free"),p=PBY[main],items=[];
+ p.sections.forEach(function(s){s.items.forEach(function(it){if(!it.dict)items.push({p:main,sec:s.id,code:it.code,name:it.name});});});
+ var day=Math.floor(Date.now()/864e5),out=[];for(var k=0;k<4&&items.length;k++)out.push(items[(day*4+k*7)%items.length]);
+ if(PBY.oku&&unlocked("oku")){var o=[];PBY.oku.sections.forEach(function(s){s.items.forEach(function(it){o.push({p:"oku",sec:s.id,code:it.code,name:it.name});});});if(o.length)out.unshift(o[day%o.length]);}
+ return out.slice(0,5);}
+function sessGo(i){if(!SS)return;if(i>=SS.list.length){sessEnd(true);return;}SS.i=Math.max(0,i);SS.t=0;var x=SS.list[SS.i];openProd(x.p,x.p+"|"+x.sec+"|"+x.code+"|"+x.name);sessUI();setTimeout(function(){if(SS)start();},300);}
+function sessUI(){var b=$("xSess");if(!SS){b.hidden=true;return;}b.hidden=false;var tot=SS.list.length*120,el=SS.done+SS.t;
+ $("xsTitle").textContent="Bugünün çalışması · "+(SS.i+1)+" / "+SS.list.length;
+ $("xsEx").style.width=Math.min(100,SS.t/120*100)+"%";$("xsAll").style.width=Math.min(100,el/tot*100)+"%";
+ var f=function(s){s=Math.floor(s);return Math.floor(s/60)+":"+("0"+s%60).slice(-2);};$("xsTime").textContent="Egzersiz "+f(SS.t)+" / 2:00 · Toplam "+f(el)+" / "+f(tot);}
+function sessStart(){SS={list:pickSession(),i:0,t:0,done:0};if(!SS.list.length){SS=null;return;}xToast("▶ Bugünün çalışması: "+SS.list.length+" egzersiz, her biri 2 dakika. Süre dolunca sonrakine kendiliğinden geçer.");sessGo(0);}
+function sessEnd(ok){if(!SS)return;SS=null;stop();sessUI();if(ok){SESS++;store("ra_sess",String(SESS));xToast("🎉 Bugünün çalışması tamam! +50 XP");confettiX();drawStreak();}}
+function confettiX(){var d=document.createElement("div");d.style.cssText="position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden";var cs=["#ea580c","#2563eb","#eab308","#16a34a","#dc2626"];for(var i=0;i<40;i++){var c=document.createElement("i");c.style.cssText="position:absolute;top:-20px;width:10px;height:16px;border-radius:3px;left:"+Math.random()*100+"%;background:"+cs[i%5]+";animation:xfall 1.6s linear "+(Math.random()*0.5)+"s forwards";d.appendChild(c);}document.body.appendChild(d);setTimeout(function(){d.remove();},2400);}
+setInterval(function(){if(!SS||!playing||document.hidden)return;SS.t++;if(SS.t>=120){SS.done+=120;stop();sessGo(SS.i+1);}sessUI();},1000);
+$("xsPrev").onclick=function(){if(SS){SS.done=Math.max(0,SS.done-120);sessGo(SS.i-1);}};
+$("xsNext").onclick=function(){if(SS){SS.done+=120;stop();sessGo(SS.i+1);}};
+$("xsStop").onclick=function(){sessEnd(false);};
+$("xsPlay").onclick=function(){playing?stop():start();};
+(function(){var row=$("addCode").parentNode,b=document.createElement("button");b.className="btn primary";b.id="xSessB";b.textContent="▶ Bugünün çalışması (10 dk)";row.insertBefore(b,row.firstChild);b.onclick=sessStart;})();
+var _sl3=showLib;showLib=function(){hideRud();_sl3();};
+var _op3=openProd;openProd=function(id,r){hideRud();_op3(id,r);};
+var wantRud=store("ra_view")==="rud";setTimeout(function(){if(wantRud&&$("gate").hidden)openRud();},0);
 
 })();
 
